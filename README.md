@@ -37,6 +37,9 @@ Link to a Source code (Preferably on GitHub)
 CSV file containing your result (as described above for submit.csv)
 File describing your approach of solving the problem. Include precision and recall for each classes.
 
+# Experiments
+Experiment details and approach is mentioned in tomtom_assignment_fake_news.txt
+
 # Results
 Test accuracy: 0.9884615540504456
 Test precision: 0.9948210716247559
