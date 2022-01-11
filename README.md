@@ -30,10 +30,14 @@ The dataset consists of 3 CSV files: "train.csv", "test.csv" and "submit.csv".
 
 "submit.csv" contains sample submission format. For every article in "test.csv" file, submission CSV file should have two columns: `id` and `label`. The `id` column should refer to a row in the "test.csv" file, and the `label` column should refer to its label i.e. real (`0`), or fake (`1`).
 
- 
 
 # Submission
 
 Link to a Source code (Preferably on GitHub)
 CSV file containing your result (as described above for submit.csv)
 File describing your approach of solving the problem. Include precision and recall for each classes.
+
+# Results
+Test accuracy: 0.9884615540504456
+Test precision: 0.9948210716247559
+Test recall: 0.9827907085418701
