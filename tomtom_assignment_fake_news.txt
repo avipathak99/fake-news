@@ -1,0 +1,152 @@
+Tried with two ways of features
+1. author + title accuracy got >99 and quickly converged to minima test_accuracy: Test accuracy: 0.9877403974533081
+2. author + title + text accuracy got >99 took longer to converge  test_accuracy: 0.84
+
+Experimented with following hyper-parameters
+1. dictionary size
+2. choice of sequence length
+3. batch size
+
+***** when tries with only dense layer
+import tensorflow.keras as keras
+model = Sequential()
+model.add(Dense(25,activation='relu', input_shape=[80, 25]))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
+
+got accuracy of
+accuracy: 0.7072 - precision_29: 0.7064 - recall_29: 0.7022
+
+***** with two dense layers :
+import tensorflow.keras as keras
+model = Sequential()
+model.add(Dense(25,activation='relu', input_shape=[80, 25]))
+model.add(Dense(32,activation='sigmoid'))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
+
+Model: "sequential_39"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+dense_79 (Dense)             (None, 80, 25)            650
+_________________________________________________________________
+dense_80 (Dense)             (None, 80, 32)            832
+_________________________________________________________________
+dense_81 (Dense)             (None, 80, 1)             33
+=================================================================
+Total params: 1,515
+Trainable params: 1,515
+Non-trainable params: 0
+
+got accuracy of
+accuracy: 0.7543 - precision_30: 0.7767 - recall_30: 0.7091
+
+let's increase dimensions of dense layer to increase number of trainable parameters to
+
+import tensorflow.keras as keras
+model = Sequential()
+model.add(Dense(64,activation='relu', input_shape=[80, 25]))
+model.add(Dense(32,activation='sigmoid'))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
+print(model.summary())
+
+Model: "sequential_40"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+dense_82 (Dense)             (None, 80, 64)            1664
+_________________________________________________________________
+dense_83 (Dense)             (None, 80, 32)            2080
+_________________________________________________________________
+dense_84 (Dense)             (None, 80, 1)             33
+=================================================================
+Total params: 3,777
+Trainable params: 3,777
+Non-trainable params: 0
+_________________________________________________________________
+None
+
+increase in trainable parameters did not increase accuracy:
+accuracy: 0.7136 - precision_34: 0.7588 - recall_34: 0.6206
+
+
+***** Let's add dropout layers
+accuracy: 0.7269 - precision_35: 0.7628 - recall_35: 0.6530
+did not help much.
+
+
+***** Let's add more and more dense layers
+import tensorflow.keras as keras
+model = Sequential()
+model.add(Dense(128,activation='relu', input_shape=[40, 25]))
+model.add(Dense(64,activation='relu'))
+model.add(Dense(32,activation='relu'))
+model.add(Dense(16,activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(8,activation='sigmoid'))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
+
+This rather made model more random.
+accuracy: 0.5008 - precision_36: 0.4956 - recall_36: 0.2954
+
+***** Adding more dropout layers gave out This
+accuracy: 0.6586 - precision_37: 0.8708 - recall_37: 0.3669
+
+
+***** Adagrad optimizer when used with same model made things worse.
+accuracy: 0.5331 - precision_38: 0.5199 - recall_38: 0.7823
+
+
+***** Tried single time step LSTM
+
+X_final = X_final.reshape((16640,1,25))
+
+import tensorflow.keras as keras
+model = Sequential()
+model.add(LSTM(25, activation='relu', input_shape=[1, 25]))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(loss='binary_crossentropy',optimizer='adagrad',metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
+
+Model: "sequential_57"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+lstm_19 (LSTM)               (None, 25)                5100
+_________________________________________________________________
+dense_115 (Dense)            (None, 1)                 26
+=================================================================
+Total params: 5,126
+Trainable params: 5,126
+Non-trainable params: 0
+_________________________________________________________________
+None
+
+We got accuracy of
+accuracy: 0.5619 - precision_45: 0.5407 - recall_45: 0.7822
+
+Finally tried LSTM with embeddings
+
+model = Sequential()
+model.add(Embedding(voc_size,40,input_length=25))
+model.add(Dropout(0.3))
+model.add(LSTM(100))
+model.add(Dropout(0.3))
+model.add(Dense(64,activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+
+Got better accuracy>99%, also same recall and precision.
+
+Evaluated on 20% randomly sampled data
+score, accuracy, precision, recall = model.evaluate(test_final, y_test_label, batch_size=64)
+
+Test score: 0.07325297594070435
+Test accuracy: 0.9884615540504456
+Test precision: 0.9948210716247559
+Test recall: 0.9827907085418701
+
+Also,
